@@ -1,0 +1,36 @@
+[Config]
+maze size = 1
+mass[g] = 10
+speed[mm/s] = 1000
+target G = 1
+friction = 0.9
+
+[45deg]
+turn start position = -50
+angular accel[rad/s/s] = 0.01658
+arc start angle[deg/s] = 10
+
+[short90deg]
+turn start position = 20
+angular accel[rad/s/s] = 0.01658
+arc start angle[deg/s] = 10
+
+[long90deg]
+turn start position = -70
+angular accel[rad/s/s] = 0.01658
+arc start angle[deg/s] = 10
+
+[135deg]
+turn start position = -50
+angular accel[rad/s/s] = 0.01658
+arc start angle[deg/s] = 10
+
+[180deg]
+turn start position = -70
+angular accel[rad/s/s] = 0.01658
+arc start angle[deg/s] = 10
+
+[vturn]
+turn start position = 0
+angular accel[rad/s/s] = 0.01658
+arc start angle[deg/s] = 10

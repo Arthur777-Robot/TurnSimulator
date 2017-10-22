@@ -64,6 +64,7 @@ class Draw(QGraphicsItem):
         painter.setPen(QColor(0,255,0))
         for i in range(len(self.r_tire_pos_x)):
             painter.drawPoint(self.r_tire_pos_x[i],self.r_tire_pos_y[i])
+
     def cacl(self,target_ang):
 
         precision = 1/10
@@ -82,8 +83,10 @@ class Draw(QGraphicsItem):
         second_count = 0
         speed_r = 0
         speed_l = 0
+        init_speed = 700
+        const = 0.1
 
-        chro_end_ang = 15
+        chro_end_ang = 2
 
         del self.pos_x[:]
         del self.pos_y[:]
@@ -99,8 +102,13 @@ class Draw(QGraphicsItem):
             elif theta <= target_ang:
                 count2 -=1
                 angvel += -self.ang_accel * precision
+
             theta += angvel * precision
-            mypos_x += np.cos((90.0-theta)*math.pi/180.0)*precision
+
+            radius = 1/math.radians(angvel)
+            temp_angle = math.degrees((init_speed/1000)**2 / (radius/1000) / const)
+
+            mypos_x += np.cos(math.radians(90.0-theta))*precision
             mypos_y += np.sin((90.0-theta)*math.pi/180.0)*precision
             r_tire_x = mypos_x+self.tread*0.5*np.cos((theta)*math.pi/180.0)
             r_tire_y = mypos_y-self.tread*0.5*np.sin((theta)*math.pi/180.0)
@@ -109,6 +117,8 @@ class Draw(QGraphicsItem):
 
             if(count == 1/precision):
                 self.angvel_list.append(angvel)
+                print(radius,temp_angle)
+                # print(angvel * 700 * math.pi /180)
                 count = 0
             count +=1
 
@@ -118,6 +128,7 @@ class Draw(QGraphicsItem):
             self.l_tire_pos_y.append(self.size*4 - (self.sla_start_y + self.offsety + l_tire_y))
             self.r_tire_pos_x.append(self.sla_start_x + r_tire_x + self.offsetx)
             self.r_tire_pos_y.append(self.size*4 - (self.sla_start_y + self.offsety + r_tire_y))
+
 
             if len(self.pos_x) > 10000:break
             if count2 <= 0:break
