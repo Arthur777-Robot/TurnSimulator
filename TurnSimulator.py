@@ -24,8 +24,10 @@ class Draw(QGraphicsItem):
         self.entry_vel = 1.0
         self.ang_accel = 0.01758
         self.angvel_list = []
-        self.pos_x = []
-        self.pos_y = []
+        self.pos_x_theo = []
+        self.pos_y_theo = []
+        self.pos_x_real = []
+        self.pos_y_real = []
         self.r_tire_pos_x = []
         self.r_tire_pos_y = []
         self.l_tire_pos_x = []
@@ -54,8 +56,12 @@ class Draw(QGraphicsItem):
         painter.drawRect(self.size*2,self.size*2,self.offsetx*2,self.size*2 + self.offsety)
 
         painter.setPen(QColor(255,0,0))
-        for i in range(len(self.pos_x)):
-            painter.drawPoint(self.pos_x[i],self.pos_y[i])
+        for i in range(len(self.pos_x_theo)):
+            painter.drawPoint(self.pos_x_theo[i],self.pos_y_theo[i])
+
+        painter.setPen(QColor(255,0,255))
+        for i in range(len(self.pos_x_real)):
+            painter.drawPoint(self.pos_x_real[i],self.pos_y_real[i])
 
         painter.setPen(QColor(0,255,0))
         for i in range(len(self.l_tire_pos_x)):
@@ -67,15 +73,18 @@ class Draw(QGraphicsItem):
 
     def cacl(self,target_ang):
 
-        precision = 1/10
+        precision = 1/1
         angvel = 0
-        mypos_x = 0
-        mypos_y = 0
+        mypos_x_theo =0
+        mypos_y_theo = 0
+        mypos_x_real = 0
+        mypos_y_real = 0
         r_tire_x = 0
         r_tire_y = 0
         l_tire_x = 0
         l_tire_y = 0
-        theta = 0
+        theta_theo = 0
+        theta_real = 0
         theta_right = 0
         theta_left = 0
 
@@ -83,54 +92,61 @@ class Draw(QGraphicsItem):
         second_count = 0
         speed_r = 0
         speed_l = 0
-        init_speed = 700
-        const = 0.1
+        init_speed = 1500
+        const = 100
+        beta = 0
 
-        chro_end_ang = 2
+        chro_end_ang = 10
 
-        del self.pos_x[:]
-        del self.pos_y[:]
+        del self.pos_x_theo[:]
+        del self.pos_y_theo[:]
+        del self.pos_x_real[:]
+        del self.pos_y_real[:]
 
         count2 = 0
 
-        while(theta < target_ang):
-            if theta < chro_end_ang:
+        while(theta_theo < target_ang):
+            if theta_theo < chro_end_ang:
                 count2 += 1
                 angvel += self.ang_accel * precision
-            elif theta < (target_ang - chro_end_ang):
+            elif theta_theo < (target_ang - chro_end_ang):
                 pass
-            elif theta <= target_ang:
+
+            elif theta_theo <= target_ang:
                 count2 -=1
                 angvel += -self.ang_accel * precision
 
-            theta += angvel * precision
+            theta_theo += angvel * precision
+            beta += -beta*const/init_speed + angvel * precision
+            # radius = 1/math.radians(angvel)
 
-            radius = 1/math.radians(angvel)
-            temp_angle = math.degrees((init_speed/1000)**2 / (radius/1000) / const)
-
-            mypos_x += np.cos(math.radians(90.0-theta))*precision
-            mypos_y += np.sin((90.0-theta)*math.pi/180.0)*precision
-            r_tire_x = mypos_x+self.tread*0.5*np.cos((theta)*math.pi/180.0)
-            r_tire_y = mypos_y-self.tread*0.5*np.sin((theta)*math.pi/180.0)
-            l_tire_x = mypos_x-self.tread*0.5*np.cos((theta)*math.pi/180.0)
-            l_tire_y = mypos_y+self.tread*0.5*np.sin((theta)*math.pi/180.0)
+            mypos_x_theo += np.cos(math.radians(90.0-theta_theo))*precision
+            mypos_y_theo += np.sin((90.0-theta_theo)*math.pi/180.0)*precision
+            mypos_x_real += np.cos(math.radians(90.0-theta_theo+beta))*precision
+            mypos_y_real += np.sin((90.0-theta_theo+beta)*math.pi/180.0)*precision
+            r_tire_x = mypos_x_theo+self.tread*0.5*np.cos((theta_theo)*math.pi/180.0)
+            r_tire_y = mypos_y_theo-self.tread*0.5*np.sin((theta_theo)*math.pi/180.0)
+            l_tire_x = mypos_x_theo-self.tread*0.5*np.cos((theta_theo)*math.pi/180.0)
+            l_tire_y = mypos_y_theo+self.tread*0.5*np.sin((theta_theo)*math.pi/180.0)
 
             if(count == 1/precision):
                 self.angvel_list.append(angvel)
-                print(radius,temp_angle)
+                print(theta_theo,beta)
                 # print(angvel * 700 * math.pi /180)
                 count = 0
             count +=1
 
-            self.pos_x.append(self.sla_start_x + self.offsetx + mypos_x)
-            self.pos_y.append(self.size*4 -(self.sla_start_y + self.offsety + mypos_y))
+            self.pos_x_theo.append(self.sla_start_x + self.offsetx + mypos_x_theo)
+            self.pos_y_theo.append(self.size*4 -(self.sla_start_y + self.offsety + mypos_y_theo))
+            self.pos_x_real.append(self.sla_start_x + self.offsetx + mypos_x_real)
+            self.pos_y_real.append(self.size*4 -(self.sla_start_y + self.offsety + mypos_y_real))
             self.l_tire_pos_x.append(self.sla_start_x + l_tire_x + self.offsetx)
             self.l_tire_pos_y.append(self.size*4 - (self.sla_start_y + self.offsety + l_tire_y))
             self.r_tire_pos_x.append(self.sla_start_x + r_tire_x + self.offsetx)
             self.r_tire_pos_y.append(self.size*4 - (self.sla_start_y + self.offsety + r_tire_y))
 
 
-            if len(self.pos_x) > 10000:break
+            if len(self.pos_x_theo) > 100000:break
             if count2 <= 0:break
         self.update()
 
