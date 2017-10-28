@@ -23,7 +23,7 @@ class Draw(QGraphicsItem):
         self.tread = 63
         self.entry_vel = 1.0
         self.ang_accel = 0.01758
-        self.weight = 0.070
+        self.weight = 0.080
         self.angvel_list = []
         self.pos_x_theo = []
         self.pos_y_theo = []
@@ -93,8 +93,8 @@ class Draw(QGraphicsItem):
         second_count = 0
         speed_r = 0
         speed_l = 0
-        init_speed = 700
-        const = 100
+        init_speed = 1000
+        const = 200
         beta = 0
 
         chro_end_ang = 10
@@ -118,13 +118,15 @@ class Draw(QGraphicsItem):
                 angvel += -self.ang_accel * precision
 
             theta_theo += angvel * precision
+            ang_vel_beta = -beta*const/init_speed + angvel * precision
             beta += -beta*const/init_speed + angvel * precision
             try:
-                radius = 1/math.radians(angvel)
+                radius = 1/math.radians(angvel)         #radius in mm
             except:
                 radius = 10000
 
-            G = self.weight * math.radians(init_speed * angvel)*init_speed/1000
+            F = self.weight * math.radians(init_speed * angvel)*init_speed/1000
+            G = radius/1000 * (math.radians(angvel * init_speed + ang_vel_beta)) **2 / 9.8
 
             mypos_x_theo += np.cos(math.radians(90.0-theta_theo))*precision
             mypos_y_theo += np.sin((90.0-theta_theo)*math.pi/180.0)*precision
@@ -137,7 +139,7 @@ class Draw(QGraphicsItem):
 
             if(count == 1/precision):
                 self.angvel_list.append(angvel)
-                print(radius,angvel*700,theta_theo,beta,G)
+                print(radius,angvel*init_speed,math.radians(init_speed*angvel),theta_theo,beta,F,G)
                 # print(angvel * 700 * math.pi /180)
                 count = 0
             count +=1
