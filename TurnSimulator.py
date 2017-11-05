@@ -93,7 +93,6 @@ class Draw(QGraphicsItem):
         second_count = 0
         speed_r = 0
         speed_l = 0
-        init_speed = 1000
         const = 100
         beta = 0
         G = 0
@@ -112,21 +111,21 @@ class Draw(QGraphicsItem):
         del self.angvel_list[:]
 
         # while(theta_theo - beta < target_ang):
-        while((angvel + ang_vel_beta) >= 0):
+        # while((angvel + ang_vel_beta) >= 0):
+        while(angvel >= 0):
         # while((angvel ) >= 0):
             if (G < max_G and flag == 0):
                 angvel += self.ang_accel * precision
                 chro_end_ang = theta_theo
-            elif theta_theo-beta < (target_ang - chro_end_ang*2):
+            elif theta_theo < (target_ang - chro_end_ang):
+            # elif theta_theo-beta < (target_ang - chro_end_ang):
                 flag = 1
                 pass
 
             # elif theta_theo <= target_ang:
-            elif (angvel + ang_vel_beta) >= 0:
-            # elif (angvel) >= 0:
-                # print ("hogehoge",angvel)
+            # elif (angvel + ang_vel_beta) >= 0:
+            elif (angvel) >= 0:
                 angvel += -self.ang_accel * precision
-                # print ("daradara",angvel)
 
             theta_theo += angvel * precision
             ang_vel_beta = (-beta*const/init_speed + angvel) * precision
@@ -256,19 +255,22 @@ class MainWindow(QWidget):
         if self.t_45.isChecked():
             QMessageBox.about(self,"Message","45 turn")
             beta = self.draw.cacl(45,int(self.init_vel.text()),float(self.maxG.text()))
-            # print(beta)
-            # self.draw.cacl(45+beta,int(self.init_vel.text()),float(self.maxG.text()))
+            self.graphicsView.update()
+            self.draw.cacl(45+beta,int(self.init_vel.text()),float(self.maxG.text()))
         elif self.short90.isChecked():
             QMessageBox.about(self,"Message","short 90 turn")
             beta = self.draw.cacl(90,int(self.init_vel.text()),float(self.maxG.text()))
+            self.graphicsView.update()
             self.draw.cacl(90+beta,int(self.init_vel.text()),float(self.maxG.text()))
         elif self.long90.isChecked():
             QMessageBox.about(self,"Message","long 90 turn")
             beta = self.draw.cacl(90,int(self.init_vel.text()),float(self.maxG.text()))
+            self.graphicsView.update()
             self.draw.cacl(90+beta,int(self.init_vel.text()),float(self.maxG.text()))
         elif self.t_135.isChecked():
             QMessageBox.about(self,"Message","135 turn")
             beta = self.draw.cacl(135,int(self.init_vel.text()),float(self.maxG.text()))
+            self.graphicsView.update()
             self.draw.cacl(135+beta,int(self.init_vel.text()),float(self.maxG.text()))
         elif self.t_180.isChecked():
             QMessageBox.about(self,"Message","vturn")
