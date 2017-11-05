@@ -17,13 +17,13 @@ The writer are using windows for development
 - Be able to select desired angle for Turn
 - Be able to draw the trace of the turn in the graphic window
 - Be able to draw the trace of the tire in the graphic window
+- Slip angle are calculated
+- G calculation are implemented
 
 # ToDo
 - Clear up the programm so that parameter are not fixed and be changed through GUI
 - Create a function that it can save the relative angular velocity
 - Create a function that the parameter which the user input can be saved as txt file
-- Calculate the trace by given side G
-- Calculate the slip angle and implement
 - Implement a function which can generate the angular velocity based other than clothoid.
 
 The list are not in order. It can go back and forward.
