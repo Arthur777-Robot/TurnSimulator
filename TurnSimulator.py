@@ -72,7 +72,7 @@ class Draw(QGraphicsItem):
         for i in range(len(self.r_tire_pos_x)):
             painter.drawPoint(self.r_tire_pos_x[i],self.r_tire_pos_y[i])
 
-    def cacl(self,target_ang):
+    def cacl(self,target_ang,init_speed = 700,max_G = 0.5):
 
         precision = 1/10
         angvel = 0
@@ -93,11 +93,10 @@ class Draw(QGraphicsItem):
         second_count = 0
         speed_r = 0
         speed_l = 0
-        init_speed = 1500
-        G = 0
-        max_G = 1.4
+        init_speed = 1000
         const = 100
         beta = 0
+        G = 0
 
 
         del self.pos_x_theo[:]
@@ -181,10 +180,25 @@ class MainWindow(QWidget):
         self.draw = Draw()
         scene.addItem(self.draw)
 
+        self.init_vel = QLineEdit()
+        self.init_vel.setText(str("1000"))
+        self.maxG = QLineEdit()
+        self.maxG.setText(str("1.0"))
+
+        lineLayout = QVBoxLayout()
+        lineLayout.addWidget(QLabel("Entering Velocity[mm/s]"))
+        lineLayout.addWidget(self.init_vel)
+        lineLayout.addWidget(QLabel("Max_G"))
+        lineLayout.addWidget(self.maxG)
+
         self.runButton = QPushButton("&Run")
         self.runButton.clicked.connect(self.run)
+        self.saveButton = QPushButton("&Save")
+        self.saveButton.clicked.connect(self.run)
+
         buttonLayout = QVBoxLayout()
         buttonLayout.addWidget(self.runButton)
+        buttonLayout.addWidget(self.saveButton)
 
         self.t_45 = QRadioButton("45")
         self.short90 = QRadioButton("short90")
@@ -211,6 +225,7 @@ class MainWindow(QWidget):
 
         propertyLayout = QVBoxLayout()
         propertyLayout.setAlignment(Qt.AlignTop)
+        propertyLayout.addLayout(lineLayout)
         propertyLayout.addLayout(vbox)
         propertyLayout.addLayout(buttonLayout)
 
@@ -227,23 +242,23 @@ class MainWindow(QWidget):
         self.graphicsView.update()
         if self.t_45.isChecked():
             QMessageBox.about(self,"Message","45 turn")
-            beta = self.draw.cacl(45)
-            self.draw.cacl(45+beta)
+            beta = self.draw.cacl(45,int(self.init_vel.text()),float(self.maxG.text()))
+            self.draw.cacl(45+beta,int(self.init_vel.text()),float(self.maxG.text()))
         elif self.short90.isChecked():
             QMessageBox.about(self,"Message","short 90 turn")
-            beta = self.draw.cacl(90)
-            self.draw.cacl(90+beta)
+            beta = self.draw.cacl(90,int(self.init_vel.text()),float(self.maxG.text()))
+            self.draw.cacl(90+beta,int(self.init_vel.text()),float(self.maxG.text()))
         elif self.long90.isChecked():
             QMessageBox.about(self,"Message","long 90 turn")
-            beta = self.draw.cacl(90)
-            self.draw.cacl(90+beta)
+            beta = self.draw.cacl(90,int(self.init_vel.text()),float(self.maxG.text()))
+            self.draw.cacl(90+beta,int(self.init_vel.text()),float(self.maxG.text()))
         elif self.t_135.isChecked():
             QMessageBox.about(self,"Message","135 turn")
-            beta = self.draw.cacl(135)
-            self.draw.cacl(135+beta)
+            beta = self.draw.cacl(135,int(self.init_vel.text()),float(self.maxG.text()))
+            self.draw.cacl(135+beta,int(self.init_vel.text()),float(self.maxG.text()))
         elif self.t_180.isChecked():
             QMessageBox.about(self,"Message","vturn")
-            beta = self.draw.cacl(180)
+            beta = self.draw.cacl(180,int(self.init_vel.text()),float(self.maxG.text()))
             # beta1 = self.draw.cacl(180)
             # beta2 = self.draw.cacl(180+beta1)
             # print(beta1,beta2)
