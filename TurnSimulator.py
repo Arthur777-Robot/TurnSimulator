@@ -97,6 +97,8 @@ class Draw(QGraphicsItem):
         const = 100
         beta = 0
         G = 0
+        ang_vel_beta = 0
+        flag = 0
 
 
         del self.pos_x_theo[:]
@@ -107,17 +109,24 @@ class Draw(QGraphicsItem):
         del self.r_tire_pos_y[:]
         del self.l_tire_pos_x[:]
         del self.l_tire_pos_y[:]
+        del self.angvel_list[:]
 
-        while(theta_theo < target_ang):
-            if G < max_G:
+        # while(theta_theo - beta < target_ang):
+        while((angvel + ang_vel_beta) >= 0):
+        # while((angvel ) >= 0):
+            if (G < max_G and flag == 0):
                 angvel += self.ang_accel * precision
                 chro_end_ang = theta_theo
-            elif theta_theo < (target_ang - chro_end_ang):
+            elif theta_theo-beta < (target_ang - chro_end_ang*2):
+                flag = 1
                 pass
 
             # elif theta_theo <= target_ang:
-            elif angvel + beta <= 0:
+            elif (angvel + ang_vel_beta) >= 0:
+            # elif (angvel) >= 0:
+                # print ("hogehoge",angvel)
                 angvel += -self.ang_accel * precision
+                # print ("daradara",angvel)
 
             theta_theo += angvel * precision
             ang_vel_beta = (-beta*const/init_speed + angvel) * precision
@@ -140,8 +149,7 @@ class Draw(QGraphicsItem):
 
             if(count == 1/precision):
                 self.angvel_list.append(angvel)
-                # print(radius,angvel*init_speed,theta_theo-beta,beta,G)
-                # print(angvel * 700 * math.pi /180)
+                print(angvel,theta_theo,theta_theo-beta,beta,G)
                 count = 0
             count +=1
 
@@ -155,19 +163,24 @@ class Draw(QGraphicsItem):
             self.r_tire_pos_y.append(self.size*4 - (self.sla_start_y + self.offsety + r_tire_y))
 
 
-            if len(self.pos_x_theo) > 100000:break
+            if len(self.pos_x_theo) > 5000:break
 
-
-        print(self.size*3 - (self.sla_start_y + self.offsety + mypos_y_real), chro_end_ang)
-
-        if(target_ang < 120 or target_ang > 85):
-            for i in range(len(self.pos_x_theo)):
-                self.pos_y_real[i] += (self.sla_start_y + self.offsety*2 + mypos_y_real) - self.size*3
-                self.pos_y_theo[i] += (self.sla_start_y + self.offsety*2 + mypos_y_real) - self.size*3
-                self.l_tire_pos_y[i] += (self.sla_start_y + self.offsety*2 + mypos_y_real) - self.size*3
-                self.r_tire_pos_y[i] += (self.sla_start_y + self.offsety*2 + mypos_y_real) - self.size*3
+        # if(target_ang < 120 or target_ang > 85):
+        #     for i in range(len(self.pos_x_theo)):
+        #         self.pos_y_real[i] += (self.sla_start_y + self.offsety*2 + mypos_y_real) - self.size*3
+        #         self.pos_y_theo[i] += (self.sla_start_y + self.offsety*2 + mypos_y_real) - self.size*3
+        #         self.l_tire_pos_y[i] += (self.sla_start_y + self.offsety*2 + mypos_y_real) - self.size*3
+        #         self.r_tire_pos_y[i] += (self.sla_start_y + self.offsety*2 + mypos_y_real) - self.size*3
         self.update()
         return beta
+
+    def save(self):
+        # f = open('test.c','w')
+        # f.writelines(self.angvel_list)
+        # f.close()
+        csv_file = u"test"
+        csv_filename = csv_file + ".c"
+        np.savetxt(csv_filename, (self.angvel_list), delimiter=",",header=" ",fmt='%f')
 
 class MainWindow(QWidget):
     def __init__(self, parent=None):
@@ -194,7 +207,7 @@ class MainWindow(QWidget):
         self.runButton = QPushButton("&Run")
         self.runButton.clicked.connect(self.run)
         self.saveButton = QPushButton("&Save")
-        self.saveButton.clicked.connect(self.run)
+        self.saveButton.clicked.connect(self.save)
 
         buttonLayout = QVBoxLayout()
         buttonLayout.addWidget(self.runButton)
@@ -243,7 +256,8 @@ class MainWindow(QWidget):
         if self.t_45.isChecked():
             QMessageBox.about(self,"Message","45 turn")
             beta = self.draw.cacl(45,int(self.init_vel.text()),float(self.maxG.text()))
-            self.draw.cacl(45+beta,int(self.init_vel.text()),float(self.maxG.text()))
+            # print(beta)
+            # self.draw.cacl(45+beta,int(self.init_vel.text()),float(self.maxG.text()))
         elif self.short90.isChecked():
             QMessageBox.about(self,"Message","short 90 turn")
             beta = self.draw.cacl(90,int(self.init_vel.text()),float(self.maxG.text()))
@@ -265,6 +279,8 @@ class MainWindow(QWidget):
         elif self.t_v.isChecked():
             QMessageBox.about(self,"Message","vturn")
 
+    def save(self):
+        self.draw.save()
 
 if __name__ == '__main__':
     import sys
